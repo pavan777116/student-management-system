@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="running-banner">
+<span>Student Management System.  </span>
+</div>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <a href="{{ url_for('admin_logout') }}" class="btn logout-btn">Logout</a>
+    </div>
+    <div class="dashboard-content">
+        <h2>Student List</h2>
+        <div class="student-cards-container">
+            {% for student in students %}
+            <div class="student-card">
+                <div class="card-header">
+                    <img src="{{ student.profile_pic_url }}" alt="Profile Pic" class="card-profile-pic">
+                    <div class="card-name-reg">
+                        <h3>{{ student.name }}</h3>
+                        <p><strong>Reg. No:</strong> {{ student.reg_no }}</p>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <p><strong>Stream:</strong> {{ student.stream }}</p>
+                    <p><strong>Sub-Stream:</strong> {{ student.sub_stream }}</p>
+                    <p><strong>Attendance:</strong> {{ student.attendance }}%</p>
+                    <p><strong>Marks:</strong>
+                        {% if student.marks %}
+                            {% for mark in student.marks %}
+                                {{ mark.code }}: {{ mark.score }}
+                            {% endfor %}
+                        {% else %}
+                            Not uploaded
+                        {% endif %}
+                    </p>
+                    <p><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{{ url_for('edit_student', student_id=student.id) }}" class="btn card-btn">Edit</a>
+                    <a href="{{ url_for('chat', student_id=student.id) }}" class="btn card-btn">Chat</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.alert');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'opacity 0.5s ease-in-out';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500); // Wait for the fade out transition to complete
+            }, 3000); // 3 seconds before the fade out starts
+        });
+    });
+</script>
+</body>
+</html>

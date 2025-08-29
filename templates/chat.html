@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="running-banner">
+        <span>Student Management System.  </span>
+    </div>
+    <!-- The rest of your page content goes here -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Chat with {{ 'Admin' if user_role == 'Student' else chat_partner.name }}</h2>
+            <a href="{{ url_for('dashboard') if user_role == 'Student' else url_for('admin_dashboard') }}" class="btn logout-btn">Back</a>
+        </div>
+        <div class="chat-box" id="chat-box">
+            </div>
+        <div class="chat-input">
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const chatBox = document.getElementById('chat-box');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+
+        // Get chat partner ID from the URL
+        const studentId = "{{ chat_partner.id }}";
+
+        // Define the chat room name. A simple convention like 'admin-student_id' is perfect.
+        const roomName = `chat_with_${studentId}`;
+        const sender = "{{ user_name }}";
+
+        function appendMessage(data) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message-bubble');
+            messageElement.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Join the chat room on connection
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.emit('join_room', { room: roomName });
+        });
+
+        socket.on('history', (history) => {
+            history.forEach(appendMessage);
+        });
+
+        socket.on('new_message', (data) => {
+            appendMessage(data);
+        });
+
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('send_message', { room: roomName, message: message, sender: sender });
+                messageInput.value = '';
+            }
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.alert');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'opacity 0.5s ease-in-out';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500); // Wait for the fade out transition to complete
+            }, 3000); // 3 seconds before the fade out starts
+        });
+    });
+</script>
+</body>
+</html>

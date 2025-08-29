@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management - Register</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<div class="register-container">
+    <div class="header">
+        <h1>Student Management</h1>
+    </div>
+    <div class="form-card">
+        <h2>Register Here</h2>
+        <form action="{{ url_for('register') }}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div class="form-group">
+                <label for="reg_no">Reg. No</label>
+                <input type="text" id="reg_no" name="reg_no" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stream">Stream</label>
+                <select id="stream" name="stream" required onchange="updateSubStream()">
+                    <option value="B.Tech(CSE)">B.Tech(CSE)</option>
+                    <option value="B.Tech(CSE, Lateral)">B.Tech(CSE, Lateral)</option>
+                    <option value="B.Tech(ECE)">B.Tech(ECE)</option>
+                    <option value="B.Tech(Mech)">B.Tech(Mech)</option>
+                    <option value="B.Tech(Civil)">B.Tech(Civil)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="sub_stream_group" style="display:none;">
+                <label for="sub_stream">Sub-Stream</label>
+                <select id="sub_stream" name="sub_stream">
+                    <option value="Cyber Security">Cyber Security</option>
+                    <option value="AI & ML">AI & ML</option>
+                    <option value="AI & DS">AI & DS</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="Data Science">Data Science</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <div class="footer-link">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </div>
+    </div>
+</div>
+<script>
+    function updateSubStream() {
+        const stream = document.getElementById('stream').value;
+        const subStreamGroup = document.getElementById('sub_stream_group');
+        if (stream === 'B.Tech(CSE, Lateral)') {
+            subStreamGroup.style.display = 'block';
+        } else {
+            subStreamGroup.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>

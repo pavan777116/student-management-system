@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="running-banner">
+<span>Student Management System.  </span>
+</div>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Student Dashboard</h1>
+        <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+        {% if student %}
+        <a href="{{ url_for('chat', student_id=student.id) }}" class="btn logout-btn">Chat with Admin</a>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-content">
+        <h2>Your Details</h2>
+        {% if student %}
+        <div class="student-profile-card">
+            <div class="profile-pic-container">
+                <img src="{{ profile_pic_path }}" alt="Profile Picture" class="profile-pic">
+            </div>
+            <div class="profile-details">
+                <h3>{{ student.name }}</h3>
+                <p><strong>Reg. No:</strong> {{ student.reg_no }}</p>
+                <p><strong>Stream:</strong> {{ student.stream }}</p>
+                <p><strong>Sub-Stream:</strong> {{ student.sub_stream }}</p>
+                <p><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                <p><strong>Attendance:</strong> {{ student.attendance }}%</p>
+            </div>
+        </div>
+
+        <div class="upload-form-card">
+            <h3>Subject Marks</h3>
+            <div class="marks-table-container">
+                {% if marks %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mark in marks %}
+                            <tr>
+                                <td>{{ mark.code }}</td>
+                                <td>{{ mark.score }} / 100</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Marks not yet uploaded.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="upload-form-card">
+            <h3>Upload Profile Picture</h3>
+            <form action="{{ url_for('upload_profile_pic') }}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="profile_pic">Choose an image</label>
+                    <input type="file" id="profile_pic" name="profile_pic" required>
+                </div>
+                <button type="submit" class="btn">Upload</button>
+            </form>
+        </div>
+        {% else %}
+        <p>No student details found. Please contact your administrator.</p>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.alert');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'opacity 0.5s ease-in-out';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500); // Wait for the fade out transition to complete
+            }, 3000); // 3 seconds before the fade out starts
+        });
+    });
+</script>
+</body>
+</html>
